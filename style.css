@@ -54,6 +54,20 @@ tr:last-child td {
     box-shadow: 0 4px 6px rgba(0, 0, 0, 0.3);
 }
 
+#rounds#active {
+    animation: blink infinite alternate 0.25s;
+}
+
+@keyframes blink {
+    0% {
+        opacity: 0.5
+    }
+
+    100% {
+        opacity: 1;
+    }
+}
+
 .dropzone {
     background: #f8f9fa;
     border: 2px dashed #007bff;
