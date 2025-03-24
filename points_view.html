@@ -1,0 +1,90 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Smash Karts Points Table - View (Season 2)</title>
+    <link rel="stylesheet" href="style.css" />
+  </head>
+  <body>
+    <h1>Smash Karts Points Table</h1>
+    <table id="pointsTable">
+      <thead>
+        <tr>
+          <th>Player</th>
+          <th>Match 1</th>
+          <th>Match 2</th>
+          <th>Match 3</th>
+          <th>Match 4</th>
+          <th>Match 5</th>
+          <th>Match 6</th>
+          <th>Total</th>
+        </tr>
+      </thead>
+      <tbody id="tableBody"></tbody>
+    </table>
+
+    <script>
+      const API_URL =
+        "https://getpantry.cloud/apiv1/pantry/b9d471e1-bb7d-432c-a7d1-ab0b8201238a/basket/Season%202";
+      const players = [
+        "Om",
+        "Daksh",
+        "Gaurav",
+        "Nonu",
+        "Prince",
+        "Raghav",
+        "Dev",
+        "Manjeet",
+        "Ansh",
+        "Rhythm",
+      ];
+      const matches = 6;
+      let pointsData = {};
+
+      async function loadData() {
+        try {
+          const response = await fetch(API_URL);
+          if (response.ok) {
+            pointsData = await response.json();
+          } else {
+            pointsData = {};
+          }
+        } catch (err) {
+          console.error("Error loading data:", err);
+          pointsData = {};
+        }
+        generateTable();
+      }
+
+      function generateTable() {
+        const tableBody = document.getElementById("tableBody");
+        tableBody.innerHTML = "";
+        players.forEach((player) => {
+          const row = document.createElement("tr");
+          let total = 0;
+          const nameCell = document.createElement("td");
+          nameCell.textContent = player;
+          row.appendChild(nameCell);
+          for (let i = 1; i <= matches; i++) {
+            const cell = document.createElement("td");
+            let value = (pointsData[player] && pointsData[player][i]) || 0;
+            cell.textContent = value;
+            row.appendChild(cell);
+            total += parseInt(value);
+          }
+          const totalCell = document.createElement("td");
+          totalCell.textContent = total;
+          row.appendChild(totalCell);
+          tableBody.appendChild(row);
+        });
+      }
+
+      document.addEventListener("DOMContentLoaded", () => {
+        loadData();
+        // Refresh data every 5 seconds to keep the view up-to-date
+        setInterval(loadData, 5000);
+      });
+    </script>
+  </body>
+</html>

@@ -1,0 +1,118 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Admin - Smash Karts Points Table (Season 2)</title>
+    <link rel="stylesheet" href="style.css" />
+  </head>
+  <body>
+    <h1>Admin Points Table</h1>
+    <table id="pointsTable">
+      <thead>
+        <tr>
+          <th>Player</th>
+          <th>Match 1</th>
+          <th>Match 2</th>
+          <th>Match 3</th>
+          <th>Match 4</th>
+          <th>Match 5</th>
+          <th>Match 6</th>
+          <th>Total</th>
+        </tr>
+      </thead>
+      <tbody id="tableBody"></tbody>
+    </table>
+    <button onclick="resetData()">Reset Points</button>
+
+    <script>
+      // Using your Pantry endpoint for Season 2
+      const API_URL =
+        "https://getpantry.cloud/apiv1/pantry/b9d471e1-bb7d-432c-a7d1-ab0b8201238a/basket/Season 2";
+      const players = [
+        "Om",
+        "Daksh",
+        "Gaurav",
+        "Nonu",
+        "Prince",
+        "Raghav",
+        "Dev",
+        "Manjeet",
+        "Ansh",
+        "Rhythm",
+      ];
+      const matches = 6;
+      let pointsData = {};
+
+      async function loadData() {
+        try {
+          const response = await fetch(API_URL);
+          if (response.ok) {
+            pointsData = await response.json();
+          } else {
+            pointsData = {};
+          }
+        } catch (err) {
+          console.error("Error loading data:", err);
+          pointsData = {};
+        }
+        generateTable();
+      }
+
+      async function saveData() {
+        try {
+          await fetch(API_URL, {
+            method: "PUT",
+            headers: { "Content-Type": "application/json" },
+            body: JSON.stringify(pointsData),
+          });
+        } catch (err) {
+          console.error("Error saving data:", err);
+        }
+      }
+
+      function generateTable() {
+        const tableBody = document.getElementById("tableBody");
+        tableBody.innerHTML = "";
+        players.forEach((player) => {
+          const row = document.createElement("tr");
+          let total = 0;
+          const nameCell = document.createElement("td");
+          nameCell.textContent = player;
+          row.appendChild(nameCell);
+          for (let i = 1; i <= matches; i++) {
+            const cell = document.createElement("td");
+            const input = document.createElement("input");
+            input.type = "number";
+            input.min = 0;
+            input.max = 5;
+            input.value = (pointsData[player] && pointsData[player][i]) || 0;
+            input.oninput = () => updatePoints(player, i, input.value);
+            cell.appendChild(input);
+            row.appendChild(cell);
+            total += parseInt(input.value);
+          }
+          const totalCell = document.createElement("td");
+          totalCell.textContent = total;
+          row.appendChild(totalCell);
+          tableBody.appendChild(row);
+        });
+      }
+
+      async function updatePoints(player, match, value) {
+        if (!pointsData[player]) pointsData[player] = {};
+        pointsData[player][match] = parseInt(value) || 0;
+        await saveData();
+        generateTable();
+      }
+
+      async function resetData() {
+        pointsData = {};
+        await saveData();
+        generateTable();
+      }
+
+      document.addEventListener("DOMContentLoaded", loadData);
+    </script>
+  </body>
+</html>
