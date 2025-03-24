@@ -1,0 +1,107 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Smash Karts Points Table</title>
+    <style>
+      table {
+        width: 100%;
+        border-collapse: collapse;
+        text-align: center;
+      }
+      th,
+      td {
+        border: 1px solid black;
+        padding: 10px;
+      }
+      th {
+        background-color: #f2f2f2;
+      }
+    </style>
+  </head>
+  <body>
+    <h2>Smash Karts Points Table</h2>
+    <table id="pointsTable">
+      <thead>
+        <tr>
+          <th>Player</th>
+          <th>Match 1</th>
+          <th>Match 2</th>
+          <th>Match 3</th>
+          <th>Match 4</th>
+          <th>Match 5</th>
+          <th>Match 6</th>
+          <th>Total</th>
+        </tr>
+      </thead>
+      <tbody id="tableBody"></tbody>
+    </table>
+    <button onclick="resetData()">Reset Points</button>
+
+    <script>
+      let players = [
+        "Om",
+        "Daksh",
+        "Gaurav",
+        "Nonu",
+        "Prince",
+        "Raghav",
+        "Dev",
+        "Manjeet",
+        "Ansh",
+        "Rhythm",
+      ];
+      let matches = 6;
+      let pointsData = JSON.parse(localStorage.getItem("pointsData")) || {};
+
+      function generateTable() {
+        let tableBody = document.getElementById("tableBody");
+        tableBody.innerHTML = "";
+
+        players.forEach((player) => {
+          let row = document.createElement("tr");
+          let total = 0;
+
+          let nameCell = document.createElement("td");
+          nameCell.textContent = player;
+          row.appendChild(nameCell);
+
+          for (let i = 1; i <= matches; i++) {
+            let cell = document.createElement("td");
+            let input = document.createElement("input");
+            input.type = "number";
+            input.min = 0;
+            input.max = 5;
+            input.value = pointsData[player]?.[i] || 0;
+            input.oninput = () => updatePoints(player, i, input.value);
+            cell.appendChild(input);
+            row.appendChild(cell);
+            total += parseInt(input.value);
+          }
+
+          let totalCell = document.createElement("td");
+          totalCell.textContent = total;
+          row.appendChild(totalCell);
+
+          tableBody.appendChild(row);
+        });
+      }
+
+      function updatePoints(player, match, value) {
+        if (!pointsData[player]) pointsData[player] = {};
+        pointsData[player][match] = parseInt(value) || 0;
+        localStorage.setItem("pointsData", JSON.stringify(pointsData));
+        generateTable();
+      }
+
+      function resetData() {
+        localStorage.removeItem("pointsData");
+        pointsData = {};
+        generateTable();
+      }
+
+      generateTable();
+    </script>
+  </body>
+</html>
